@@ -143,6 +143,13 @@ class PaginatorPlugin(Plugin):
                                  if hasattr(res.meta, 'paginator'))
             for resource in paged_resources:
                 paginator = Paginator(resource.meta.paginator)
-                added_resources += paginator.walk_paged_resources(node, resource)
+
+                # This is a hack so I can have my main/work/ folder actually display all of the posts
+                # in main/2010, main/2011, etc.
+                startNode = node
+                if hasattr(resource.meta.paginator, "start_at_parent") and resource.meta.paginator.start_at_parent == True:
+                    startNode = node.parent
+
+                added_resources += paginator.walk_paged_resources(startNode, resource)
 
             node.resources += added_resources
