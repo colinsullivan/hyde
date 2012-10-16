@@ -133,16 +133,19 @@ class Generator(object):
             return []
         rel_path = resource.relative_path
         deps = []
+        def filter_deps(resource, deps):
+            return list(set([dep for dep in deps
+                        if not dep == resource.relative_path]))
         if hasattr(resource, 'depends'):
             user_deps = resource.depends
-            for dep in user_deps:
-                deps.append(dep)
+            deps = filter_deps(resource, user_deps)
+            for dep in deps:
                 dep_res = self.site.content.resource_from_relative_path(dep)
                 if dep_res:
                     deps.extend(self.get_dependencies(dep_res))
         if resource.uses_template:
             deps.extend(self.template.get_dependencies(rel_path))
-        deps = list(set(deps))
+        deps = filter_deps(resource, deps)
         if None in deps:
             deps.remove(None)
         self.deps[rel_path] = deps
